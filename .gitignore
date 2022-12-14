@@ -1,3 +1,5 @@
 venv
 output.xlsx
 ~$output.xlsx
+__pycache__
+test.py
