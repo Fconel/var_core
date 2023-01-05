@@ -15,7 +15,7 @@ def get_returns(prices,log_retun=False):
 def HVar(tickers, start_date, end_date, time_interval,log_retun=False,alpha=0.05,decay=False,decay_rate=0.95):
 
     assets_prices = pdr.YahooDailyReader(list(tickers.keys()), interval=time_interval , start=start_date,end=end_date).read()['Adj Close']
-
+    
     assets_value = assets_prices.iloc[:, 0:]  * list(tickers.values())
     assets_returns = get_returns(assets_prices)
     portfolio_weights = assets_value.div(assets_value.sum(axis = 1), axis=0).tail(-1)
@@ -36,7 +36,8 @@ def HVar(tickers, start_date, end_date, time_interval,log_retun=False,alpha=0.05
     xth_smallest_rate = return_portfolio_sorted.quantile(alpha, interpolation="lower")
     expected_shortfall = return_portfolio_sorted[return_portfolio_sorted < xth_smallest_rate].dropna().mean()
     mean_return_rate = return_portfolio_sorted.mean()
-    abs_VaR = portfolio_value * xth_smallest_rate
+
+    Value_at_Risk = xth_smallest_rate
     
     #by asset
     '''
@@ -58,10 +59,11 @@ def HVar(tickers, start_date, end_date, time_interval,log_retun=False,alpha=0.05
         xp = decay_returns.loc[index:index+1, 'cumulative'].values
         fp = decay_returns.loc[index:index+1, 'returns'].values
         VaR_weighted = np.interp(0.05, xp, fp) 
-        
-        return {"Portfolio Value": portfolio_value, "absolute Age-weighted VaR ":portfolio_value*VaR_weighted, "Age-weighted VaR is " :VaR_weighted,'Expected shortfall':expected_shortfall}
 
-    return {"Portfolio Value": portfolio_value, "absolute VaR":abs_VaR, "perc" :xth_smallest_rate,'Expected shortfall':expected_shortfall}
+        Value_at_Risk=VaR_weighted
+        
+
+    return {"Portfolio Value": portfolio_value, "Value at Risk":Value_at_Risk,'Expected shortfall':expected_shortfall,'returns':return_portfolio}
 
 def PVar(tickers, start_date, end_date, time_interval,log_retun=False,alpha=0.05):
     
